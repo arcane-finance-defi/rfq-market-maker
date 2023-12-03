@@ -1,0 +1,7 @@
+ws-client/.node_modules
+ws-client/.dist
+ws-client/.env
+signature/.env
+signature/target
+signature/Cargo.lock
+.env
