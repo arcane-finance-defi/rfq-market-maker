@@ -27,22 +27,14 @@ cd rfq-market-maker
 
 Copy the provided `.env.example` file to `.env`.
 
-Fill in the necessary environment variables:
+Fill in the required environment variables:
 
 - `ROUTER_WS_HOST`: The WebSocket host for Arcane Finance router.
 - `AUTH_TOKEN`: Authentication token for the WebSocket connection to Arcane Finance router.
 - `MAKER_ADDRESS`: The address of the maker.
 - `MAKER_PK`: The private key of the maker.
-- `SIGN_HOST`: Host for the Rust signature service (defaults to `http://localhost:8000`).
-- `EXPIRE_BLOCK_NUMBER`: Block number at which the order expires (default 100).
-
-### Build and Run the Docker Container:
-
-Execute the `run.sh` script:
-
-```bash
-./run.sh
-```
+- `SIGN_HOST` (optional): Host for the Rust signature service (defaults to `http://localhost:8000`).
+- `EXPIRE_BLOCK_NUMBER` (optional): Block number at which the order expires (default 100).
 
 ### Build and Run the Docker Container:
 
