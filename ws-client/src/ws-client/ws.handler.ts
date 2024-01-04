@@ -3,7 +3,7 @@ import BigNumberJs from 'bignumber.js'
 
 import { IGetPriceWsRequest, IGetPriceWsResponse, getPriceWsRequestSchema } from './ws.interface'
 import { getExchange, getLastBlock, getNonce } from '../helpers'
-import { AMOUNT_OUT_FIXED, NONCE_SIZE, TOKENS, ValidConfig } from '../config'
+import { NONCE_SIZE, TOKENS, ValidConfig } from '../config'
 import { signatureDataRequest, IGetSignatureRequest } from '../signature'
 
 export const handleWsMessage = async (data: WebSocket.RawData, client: WebSocket): Promise<void> => {
@@ -38,10 +38,7 @@ export const handleWsMessage = async (data: WebSocket.RawData, client: WebSocket
       return
     }
 
-    const amountOut = Number(priceWsRequest.amountIn) * exchangeRate
-
-    const amountInDecimal = BigInt(new BigNumberJs(priceWsRequest.amountIn).times((10n ** BigInt(tokenInConfig.decimals)).toString()).toFixed(0))
-    const amountOutDecimal = BigInt(new BigNumberJs(amountOut).times((10n ** BigInt(tokenOutConfig.decimals)).toString()).toFixed(0))
+    const amountOut = BigInt(new BigNumberJs(Number(priceWsRequest.amountIn) * exchangeRate).toFixed(0))
     const nonce = getNonce(NONCE_SIZE)
     const lastBlock = await getLastBlock()
 
@@ -53,8 +50,8 @@ export const handleWsMessage = async (data: WebSocket.RawData, client: WebSocket
     const validUntil = lastBlock + ValidConfig.EXPIRE_BLOCK_NUMBER
 
     const signatureData: IGetSignatureRequest = {
-      amount_out: Number(amountOutDecimal.toString()),
-      amount_in: Number(amountInDecimal.toString()),
+      amount_out: Number(amountOut.toString()),
+      amount_in: Number(priceWsRequest.amountIn.toString()),
       token_in: Number(priceWsRequest.tokenIn),
       token_out: Number(priceWsRequest.tokenOut),
       maker_address: ValidConfig.MAKER_ADDRESS,
@@ -73,9 +70,8 @@ export const handleWsMessage = async (data: WebSocket.RawData, client: WebSocket
       tokenIn: priceWsRequest.tokenIn,
       tokenOut: priceWsRequest.tokenOut,
       amountIn: priceWsRequest.amountIn,
-      amountOut: amountOut.toFixed(AMOUNT_OUT_FIXED),
+      amountOut: amountOut.toString(),
       signature: signature.quote_signature,
-      quote: signature.quote_signature,
       address: ValidConfig.MAKER_ADDRESS,
       validUntil: validUntil.toString(),
       nonce: nonce,

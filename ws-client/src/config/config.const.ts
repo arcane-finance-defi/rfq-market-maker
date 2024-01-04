@@ -24,6 +24,5 @@ export const TOKENS: ITokenConfig[] = [
 ]
 
 export const NONCE_SIZE = 72
-export const AMOUNT_OUT_FIXED = 6
 export const DEFAULT_EXPIRE_BLOCK_NUMBER = 100
 export const DEFAULT_SIGN_HOST = 'http://localhost:8000'

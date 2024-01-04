@@ -22,7 +22,6 @@ export interface IGetPriceWsResponse {
   amountIn: string
   amountOut: string
   signature: string
-  quote: string
   address: string
   validUntil: string
   nonce: string
