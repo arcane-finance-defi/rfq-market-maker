@@ -1,11 +1,10 @@
 import axios from 'axios'
 import { IGetSignatureRequest, IGetSignatureResponse } from './signature.interface'
-
-const SIG_HOST = 'http://localhost:8000'
+import { DEFAULT_SIGN_HOST } from '../config'
 
 export const signatureDataRequest = async (data: IGetSignatureRequest): Promise<IGetSignatureResponse | void> => {
   try {
-    const response = await axios.post<IGetSignatureResponse>(`${SIG_HOST}/sign`, {
+    const response = await axios.post<IGetSignatureResponse>(`${DEFAULT_SIGN_HOST}/sign`, {
       ...data,
     })
 
@@ -13,10 +12,10 @@ export const signatureDataRequest = async (data: IGetSignatureRequest): Promise<
   } catch (error) {
     if (axios.isAxiosError(error)) {
       // Handle Axios-specific error
-      console.error('Axios error:', error.message)
+      console.error('Axios error in signatureDataRequest:', error.message)
     } else {
       // Handle unexpected errors
-      console.error('Unexpected error:', error)
+      console.error('Unexpected error in signatureDataRequest:', error)
     }
   }
 }

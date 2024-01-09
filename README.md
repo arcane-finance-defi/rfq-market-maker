@@ -33,7 +33,6 @@ Fill in the required environment variables:
 - `AUTH_TOKEN`: Authentication token for the WebSocket connection to Arcane Finance router.
 - `MAKER_ADDRESS`: The address of the maker.
 - `MAKER_PK`: The private key of the maker.
-- `SIGN_HOST` (optional): Host for the Rust signature service (defaults to `http://localhost:8000`).
 - `EXPIRE_BLOCK_NUMBER` (optional): Block number at which the order expires (default 100).
 
 ### Build and Run the Docker Container:

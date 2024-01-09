@@ -1,0 +1,14 @@
+node_modules
+dist
+generated
+.env
+config.yaml
+config.json
+text.txt
+test.ts
+.env.dev
+.env.stage
+.prettierrc.yaml
+dev.env
+stage.env
+local.env

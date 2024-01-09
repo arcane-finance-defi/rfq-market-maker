@@ -2,36 +2,26 @@ import WebSocket from 'ws'
 import BigNumberJs from 'bignumber.js'
 
 import { IGetPriceWsRequest, IGetPriceWsResponse, getPriceWsRequestSchema } from './ws.interface'
-import { getExchange, getLastBlock, getNonce } from '../helpers'
-import { NONCE_SIZE, TOKENS, ValidConfig } from '../config'
+import { getLastBlock, getNonce } from '../helpers'
+import { NONCE_SIZE, ValidConfig } from '../config'
+import { priceDataRequest } from '../price'
 import { signatureDataRequest, IGetSignatureRequest } from '../signature'
 
 export const handleWsMessage = async (data: WebSocket.RawData, client: WebSocket): Promise<void> => {
   try {
     console.log('Received message from server with data:', data.toString())
     const anyRecord: Record<string, any> = JSON.parse(data.toString())
-
     const getPriceWsRequestValidate = getPriceWsRequestSchema.validate(anyRecord)
     if (getPriceWsRequestValidate.error) {
       console.error('Validation PriceWsRequest error:', getPriceWsRequestValidate.error)
       return
     }
-
     const priceWsRequest: IGetPriceWsRequest = getPriceWsRequestValidate.value
 
-    const tokenInConfig = TOKENS.find((token) => token.id === Number(priceWsRequest.tokenIn))
-    if (!tokenInConfig) {
-      console.error('TokenIn not found in config')
-      return
-    }
-
-    const tokenOutConfig = TOKENS.find((token) => token.id === Number(priceWsRequest.tokenOut))
-    if (!tokenOutConfig) {
-      console.error('TokenOut not found in config')
-      return
-    }
-
-    const exchangeRate = await getExchange(tokenInConfig.coinGeckoId, tokenOutConfig.coinGeckoId)
+    const exchangeRate = await priceDataRequest({
+      tokenIn: Number(priceWsRequest.tokenIn),
+      tokenOut: Number(priceWsRequest.tokenOut),
+    })
 
     if (!exchangeRate) {
       console.error('Error getting exchange rate')

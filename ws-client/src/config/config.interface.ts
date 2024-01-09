@@ -6,6 +6,7 @@ export interface IConfig {
   AUTH_TOKEN: string
   MAKER_ADDRESS: string
   EXPIRE_BLOCK_NUMBER: number
+  ALEO_API_HOST: string
 }
 
 export const configSchema = joi.object<IConfig>({
@@ -14,6 +15,7 @@ export const configSchema = joi.object<IConfig>({
   AUTH_TOKEN: joi.string().required(),
   MAKER_ADDRESS: joi.string().required(),
   EXPIRE_BLOCK_NUMBER: joi.number().required(),
+  ALEO_API_HOST: joi.string().required(),
 })
 
 export interface ITokenConfig {

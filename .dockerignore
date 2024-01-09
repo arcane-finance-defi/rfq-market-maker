@@ -2,6 +2,9 @@ ws-client/.node_modules
 ws-client/.dist
 ws-client/.env
 signature/.env
+price-client/.node_modules
+price-client/.dist
+price-client/.env
 signature/target
 signature/Cargo.lock
 .env

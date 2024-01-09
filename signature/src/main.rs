@@ -1,17 +1,18 @@
-#[macro_use] extern crate rocket;
+#[macro_use]
+extern crate rocket;
 
-use std::env;
-use rocket::serde::{Deserialize, Serialize, json::Json};
-use once_cell::sync::OnceCell;
-use std::str::FromStr;
 use aleo_rust::{Identifier, Literal, Plaintext, PrivateKey, Signature, Testnet3};
+use once_cell::sync::OnceCell;
+use rand::prelude::*;
+use rand_chacha::ChaCha20Rng;
+use rand_core::CryptoRngCore;
 use rocket::http::{ContentType, Status};
+use rocket::serde::{json::Json, Deserialize, Serialize};
 use snarkvm_circuit::IndexMap;
 use snarkvm_console_types::address::{TestRng, ToFields};
-use snarkvm_console_types::{Address, Field, U128, U64};
-use rand_chacha::ChaCha20Rng;
-use rand::prelude::*;
-use rand_core::CryptoRngCore;
+use snarkvm_console_types::{Address, Field, U128, U32, U64};
+use std::env;
+use std::str::FromStr;
 
 fn sign(quote: &Json<Quote<'_>>) -> Signature<Testnet3> {
     let mut rng = ChaCha20Rng::from_entropy();
@@ -20,30 +21,59 @@ fn sign(quote: &Json<Quote<'_>>) -> Signature<Testnet3> {
     // Create a value to be signed.
     let value = Plaintext::<Testnet3>::Struct(
         IndexMap::from_iter(
-            vec![(
-                Identifier::from_str("amount_in").unwrap(),
-                Plaintext::<Testnet3>::Literal(Literal::U128(U128::new(quote.amount_in)), OnceCell::new()),
-            ),
-            (
-                Identifier::from_str("amount_out").unwrap(),
-                Plaintext::<Testnet3>::Literal(Literal::U128(U128::new(quote.amount_out)), OnceCell::new()),
-            ),
-            (
-                Identifier::from_str("token_in").unwrap(),
-                Plaintext::<Testnet3>::Literal(Literal::U64(U64::new(quote.token_in)), OnceCell::new()),
-            ),
-            (
-                Identifier::from_str("token_out").unwrap(),
-                Plaintext::<Testnet3>::Literal(Literal::U64(U64::new(quote.token_out)), OnceCell::new()),
-            ),
-            (
-                Identifier::from_str("maker_address").unwrap(),
-                Plaintext::<Testnet3>::Literal(Literal::Address(Address::<Testnet3>::from_str(quote.maker_address).unwrap()), OnceCell::new()),
-            ),
-            (
-                Identifier::from_str("nonce").unwrap(),
-                Plaintext::<Testnet3>::Literal(Literal::Field(Field::<Testnet3>::from_str(quote.nonce).unwrap()), OnceCell::new()),
-            )]
+            vec![
+                (
+                    Identifier::from_str("amount_in").unwrap(),
+                    Plaintext::<Testnet3>::Literal(
+                        Literal::U128(U128::new(quote.amount_in)),
+                        OnceCell::new(),
+                    ),
+                ),
+                (
+                    Identifier::from_str("amount_out").unwrap(),
+                    Plaintext::<Testnet3>::Literal(
+                        Literal::U128(U128::new(quote.amount_out)),
+                        OnceCell::new(),
+                    ),
+                ),
+                (
+                    Identifier::from_str("token_in").unwrap(),
+                    Plaintext::<Testnet3>::Literal(
+                        Literal::U64(U64::new(quote.token_in)),
+                        OnceCell::new(),
+                    ),
+                ),
+                (
+                    Identifier::from_str("token_out").unwrap(),
+                    Plaintext::<Testnet3>::Literal(
+                        Literal::U64(U64::new(quote.token_out)),
+                        OnceCell::new(),
+                    ),
+                ),
+                (
+                    Identifier::from_str("maker_address").unwrap(),
+                    Plaintext::<Testnet3>::Literal(
+                        Literal::Address(
+                            Address::<Testnet3>::from_str(quote.maker_address).unwrap(),
+                        ),
+                        OnceCell::new(),
+                    ),
+                ),
+                (
+                    Identifier::from_str("nonce").unwrap(),
+                    Plaintext::<Testnet3>::Literal(
+                        Literal::Field(Field::<Testnet3>::from_str(quote.nonce).unwrap()),
+                        OnceCell::new(),
+                    ),
+                ),
+                (
+                    Identifier::from_str("valid_until").unwrap(),
+                    Plaintext::<Testnet3>::Literal(
+                        Literal::U32(U32::new(quote.valid_until)),
+                        OnceCell::new(),
+                    ),
+                ),
+            ]
             .into_iter(),
         ),
         OnceCell::new(),
@@ -63,7 +93,6 @@ fn sign(quote: &Json<Quote<'_>>) -> Signature<Testnet3> {
 
     return signature;
 }
-
 
 #[derive(Deserialize, Debug)]
 #[serde(crate = "rocket::serde")]
@@ -97,9 +126,10 @@ struct QuoteSignature {
 fn sign_handler(quote: Json<Quote<'_>>) -> Json<QuoteSignature> {
     println!("quote {:?}", quote);
     let quote_signature = sign(&quote);
-    Json(QuoteSignature { quote_signature: format!("{}", quote_signature) })
+    Json(QuoteSignature {
+        quote_signature: format!("{}", quote_signature),
+    })
 }
-
 
 #[launch]
 fn rocket() -> _ {
