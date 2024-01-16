@@ -1,3 +1,8 @@
+export interface IGetPriceRequest {
+  tokenIn: number
+  tokenOut: number
+}
+
 export interface IGetSignatureRequest {
   amount_in: number
   amount_out: number

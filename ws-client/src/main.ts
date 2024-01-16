@@ -13,7 +13,6 @@ const port = 3000
     res.status(200).send('OK')
   })
 
-  // Start the server
   app.listen(port, () => {
     console.log(`Server for Health check  running on port ${port}`)
   })

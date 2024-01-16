@@ -4,7 +4,8 @@ The Market Maker Service is a specialized solution designed to integrate with th
 
 ## Features
 
-- Node.js Application: Manages request handling, price retrieval, and response generation.
+- Node.js WS Application: Manages request handling, and response generation.
+- Node.js Price Application: Manages prices.
 - Rust Application: Solely responsible for the secure signing of transaction data.
 
 ## Prerequisites

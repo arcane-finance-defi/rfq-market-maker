@@ -1,21 +1,27 @@
 import WebSocket from 'ws'
 import BigNumberJs from 'bignumber.js'
 
+import { IGetSignatureRequest, getLastBlockCache, priceDataRequest, signatureDataRequest } from '../services'
 import { IGetPriceWsRequest, IGetPriceWsResponse, getPriceWsRequestSchema } from './ws.interface'
-import { getLastBlock, getNonce } from '../helpers'
-import { NONCE_SIZE, ValidConfig } from '../config'
-import { priceDataRequest } from '../price'
-import { signatureDataRequest, IGetSignatureRequest } from '../signature'
+import { getNonce } from '../helpers'
+import { ValidConfig } from '../config'
 
 export const handleWsMessage = async (data: WebSocket.RawData, client: WebSocket): Promise<void> => {
   try {
+    const sendReponse = (response: IGetPriceWsResponse) => {
+      console.log('Sending response to server with data:', JSON.stringify(response))
+      client.send(JSON.stringify(response))
+    }
+
     console.log('Received message from server with data:', data.toString())
-    const anyRecord: Record<string, any> = JSON.parse(data.toString())
-    const getPriceWsRequestValidate = getPriceWsRequestSchema.validate(anyRecord)
+
+    const getPriceWsRequestValidate = getPriceWsRequestSchema.validate(JSON.parse(data.toString()))
+
     if (getPriceWsRequestValidate.error) {
       console.error('Validation PriceWsRequest error:', getPriceWsRequestValidate.error)
       return
     }
+
     const priceWsRequest: IGetPriceWsRequest = getPriceWsRequestValidate.value
 
     const exchangeRate = await priceDataRequest({
@@ -25,18 +31,13 @@ export const handleWsMessage = async (data: WebSocket.RawData, client: WebSocket
 
     if (!exchangeRate) {
       console.error('Error getting exchange rate')
+      sendReponse({ priceRequestId: priceWsRequest.priceRequestId, data: undefined })
       return
     }
 
     const amountOut = BigInt(new BigNumberJs(Number(priceWsRequest.amountIn) * exchangeRate).toFixed(0))
-    const nonce = getNonce(NONCE_SIZE)
-    const lastBlock = await getLastBlock()
-
-    if (!lastBlock) {
-      console.error('Error getting last block')
-      return
-    }
-
+    const nonce = getNonce()
+    const lastBlock = getLastBlockCache()
     const validUntil = lastBlock + ValidConfig.EXPIRE_BLOCK_NUMBER
 
     const signatureData: IGetSignatureRequest = {
@@ -53,23 +54,23 @@ export const handleWsMessage = async (data: WebSocket.RawData, client: WebSocket
 
     if (!signature) {
       console.error('Error getting signature')
+      sendReponse({ priceRequestId: priceWsRequest.priceRequestId, data: undefined })
       return
     }
 
-    const response: IGetPriceWsResponse = {
-      tokenIn: priceWsRequest.tokenIn,
-      tokenOut: priceWsRequest.tokenOut,
-      amountIn: priceWsRequest.amountIn,
-      amountOut: amountOut.toString(),
-      signature: signature.quote_signature,
-      address: ValidConfig.MAKER_ADDRESS,
-      validUntil: validUntil.toString(),
-      nonce: nonce,
+    sendReponse({
+      data: {
+        tokenIn: priceWsRequest.tokenIn,
+        tokenOut: priceWsRequest.tokenOut,
+        amountIn: priceWsRequest.amountIn,
+        amountOut: amountOut.toString(),
+        signature: signature.quote_signature,
+        address: ValidConfig.MAKER_ADDRESS,
+        validUntil: validUntil.toString(),
+        nonce: nonce,
+      },
       priceRequestId: priceWsRequest.priceRequestId,
-    }
-
-    console.log('Sending response to server with data:', JSON.stringify(response))
-    client.send(JSON.stringify(response))
+    })
   } catch (err) {
     console.error('Unexpected error in handleWsMessage:', err)
     return

@@ -9,7 +9,7 @@ export interface IGetPriceWsRequest {
   amountIn: string
 }
 
-export const getPriceWsRequestSchema = joi.object<IGetPriceWsResponse>({
+export const getPriceWsRequestSchema = joi.object<IGetPriceWsRequest>({
   priceRequestId: joi.number().required(),
   tokenIn: joi.string().required(),
   tokenOut: joi.string().required(),
@@ -17,13 +17,15 @@ export const getPriceWsRequestSchema = joi.object<IGetPriceWsResponse>({
 })
 
 export interface IGetPriceWsResponse {
-  tokenIn: string
-  tokenOut: string
-  amountIn: string
-  amountOut: string
-  signature: string
-  address: string
-  validUntil: string
-  nonce: string
+  data?: {
+    tokenIn: string
+    tokenOut: string
+    amountIn: string
+    amountOut: string
+    signature: string
+    address: string
+    validUntil: string
+    nonce: string
+  }
   priceRequestId: number
 }

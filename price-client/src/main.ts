@@ -9,10 +9,12 @@ interface ExchangeRate {
   [key: string]: number
 }
 
-const exchangeRates: ExchangeRate = {}
+const exchangeRates: ExchangeRate = {
+  0: 8,
+}
 let updateWork = false
 
-async function updateExchangeRates() {
+const updateExchangeRates = async () => {
   if (updateWork) {
     return
   }
