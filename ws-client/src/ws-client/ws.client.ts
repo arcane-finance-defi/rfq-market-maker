@@ -21,7 +21,7 @@ export const connectWebSocket = () => {
   client.on('close', () => {
     console.log('Disconnected from the WebSocket server')
     reconnectInterval = setInterval(() => {
-      console.log('Attempting to reconnect to the WebSocket server...')
+      console.log('Attempting to reconnect to the WebSocket server after close ...')
       connectWebSocket()
     }, 10000)
   })
@@ -33,7 +33,7 @@ export const connectWebSocket = () => {
   client.on('error', (error) => {
     console.error('WebSocket error:', error)
     reconnectInterval = setInterval(() => {
-      console.log('Attempting to reconnect to the WebSocket server...')
+      console.log('Attempting to reconnect to the WebSocket server after error...')
       connectWebSocket()
     }, 10000)
   })

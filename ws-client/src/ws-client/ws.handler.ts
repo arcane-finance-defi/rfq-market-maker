@@ -8,7 +8,7 @@ import { ValidConfig } from '../config'
 
 export const handleWsMessage = async (data: WebSocket.RawData, client: WebSocket): Promise<void> => {
   try {
-    const sendReponse = (response: IGetPriceWsResponse) => {
+    const sendResponse = (response: IGetPriceWsResponse) => {
       console.log('Sending response to server with data:', JSON.stringify(response))
       client.send(JSON.stringify(response))
     }
@@ -31,7 +31,7 @@ export const handleWsMessage = async (data: WebSocket.RawData, client: WebSocket
 
     if (!exchangeRate) {
       console.error('Error getting exchange rate')
-      sendReponse({ priceRequestId: priceWsRequest.priceRequestId, data: undefined })
+      sendResponse({ priceRequestId: priceWsRequest.priceRequestId, data: undefined })
       return
     }
 
@@ -54,11 +54,11 @@ export const handleWsMessage = async (data: WebSocket.RawData, client: WebSocket
 
     if (!signature) {
       console.error('Error getting signature')
-      sendReponse({ priceRequestId: priceWsRequest.priceRequestId, data: undefined })
+      sendResponse({ priceRequestId: priceWsRequest.priceRequestId, data: undefined })
       return
     }
 
-    sendReponse({
+    sendResponse({
       data: {
         tokenIn: priceWsRequest.tokenIn,
         tokenOut: priceWsRequest.tokenOut,
